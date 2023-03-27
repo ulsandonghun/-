@@ -13,7 +13,7 @@ public class TcpIpServer2 {
 
         try {
             serverSocket = new ServerSocket(7777);
-            System.out.println(getTime() + "서버가 준비되었습니다.");
+            System.out.println(getTime() + "TCP서버가 준비되었습니다.");
 
 
         } catch (IOException e) {
