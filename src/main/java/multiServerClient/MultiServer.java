@@ -1,6 +1,8 @@
 package multiServerClient;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -80,8 +82,30 @@ class ReceiveThread extends Thread {
 
             while (in != null) {
                 String inputMsg = in.readLine();
+                String filename=inputMsg;
+
+                //파일 전송
+
+                System.out.println(name+"님이 "+ filename+" 파일을 전송하였습니다.");
+                System.out.println("전송받은 파일 내용: ");
+                FileReader reader = new FileReader(filename);
+
+                int ch;
+                while ((ch = reader.read()) != -1) {
+                    System.out.print((char) ch);
+                }
+
+
+                File file = new File(filename);
+
+
+
+
+
+
+               //파일전송 기능 완료.
                 if("quit".equals(inputMsg)) break;
-                sendAll(name + ">>" + inputMsg);
+                sendAll(name + "님께서 " + inputMsg+" 상대경로에 존재하는 파일을 서버로 전송완료하였습니다.");
             }
         } catch (IOException e) {
             System.out.println("[" + name + " 접속끊김]");
