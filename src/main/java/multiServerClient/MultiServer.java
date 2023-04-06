@@ -117,7 +117,7 @@ class ReceiveThread extends Thread {
 
 
                 // 기존의 파일이 없으면 만들어지고 있으면 덮어쓰게 되어 기존 파일내용이 지워진다.
-                FileOutputStream fos = new FileOutputStream(filename);
+                FileOutputStream fos = new FileOutputStream("ServerRepository.txt");
 
                 //기존 파일에 내용을 추가 할려면 두번째 인자로 true를 적어 준다. true를 추가해도 없으면 만든다.
                 //FileOutputStream fos1 = new FileOutputStream("c:/temp/java/test/test.txt",true);
@@ -125,21 +125,18 @@ class ReceiveThread extends Thread {
                 // 파일에 저장할 내용
                 String strText = strBuff;
 
+
+
                 // 문자열을 바이트배열로 변환해서 파일에 저장한다.
                 fos.write(strText.getBytes());
 
                 // 사용이 끝나면 파일 스트림을 닫습니다.
                 fos.close();
 
-
-
-
-
-
-
                //파일전송 기능 완료.
                 if("quit".equals(inputMsg)) break;
-                sendAll(name + "님께서 " + inputMsg+" 상대경로에 존재하는 파일을 서버로 전송완료하였습니다.");
+                sendAll(name + "님께서 " + inputMsg+" 상대경로에 존재하는 파일을 ServerRepository로 전송완료하였습니다.");
+                System.out.println("서버 저장소에 저장 완료.");
             }
         } catch (IOException e) {
             System.out.println("[" + name + " 접속끊김]");

@@ -24,7 +24,7 @@ public class MultiClient {
 
 
             String name = JOptionPane.showInputDialog("로그인할 이름을 입력하세요.");
-//            String name = "user" + (int)(Math.random()*10);
+
             Thread sendThread = new SendThread(socket, name);
             sendThread.start();
 
@@ -67,8 +67,8 @@ class SendThread extends Thread {
             out.flush();
 
             while (true) {
-                String outputMsg = JOptionPane.showInputDialog(name+"님 서버로 전송할 파일의 이름을 입력하세요.");
-//                String outputMsg = scanner.nextLine();
+                String outputMsg
+                        = JOptionPane.showInputDialog(name+"님 서버로 전송할 파일의 이름을 입력하세요.");
                 out.println(outputMsg);
                 out.flush();
                 if("quit".equals(outputMsg)) break;
