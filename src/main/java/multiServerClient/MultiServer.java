@@ -96,7 +96,7 @@ class ReceiveThread extends Thread {
                 // 소켓에서 받은 file 정보로 파일 입력 받기
                 FileInputStream fis = new FileInputStream(filename);
 
-                // 파일의 내용을 byte단위로 읽어옵니다.그래서
+                // 파일의 내용을 byte단위로 읽어오고,그래서
                 // 읽어서 저장할 버퍼 byte 배열 설정
                 byte[] byteBuff = new byte[9999];
 
@@ -106,10 +106,10 @@ class ReceiveThread extends Thread {
                 // 출력을 위해서 byte배열을 문자열로 변환
                 String strBuff = new String(byteBuff, 0, nRLen);
 
-                // 읽은 내용을 출력 합니다.
+                // 읽은 내용을 출력.
                 System.out.printf("읽은 바이트수[%d] : \n읽은 내용 :  \n%s \n", nRLen, strBuff);
 
-                // 사용이 끝나면 파일 스트림을 닫습니다.
+                // 사용이 끝나면 파일 스트림을 닫는다.
                 fis.close();
 
                 //파일 input 완료.
@@ -130,12 +130,12 @@ class ReceiveThread extends Thread {
                 // 문자열을 바이트배열로 변환해서 파일에 저장한다.
                 fos.write(strText.getBytes());
 
-                // 사용이 끝나면 파일 스트림을 닫습니다.
+                // 사용이 끝나면 파일 스트림을 닫는다.
                 fos.close();
 
                //파일전송 기능 완료.
                 if("quit".equals(inputMsg)) break;
-                sendAll(name + "님께서 " + inputMsg+" 상대경로에 존재하는 파일을 ServerRepository로 전송완료하였습니다.");
+                sendAll(name + "님께서 " + inputMsg+" 파일을 ServerRepository로 전송완료하였습니다.");
                 System.out.println("서버 저장소에 저장 완료.");
             }
         } catch (IOException e) {
