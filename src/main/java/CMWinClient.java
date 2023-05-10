@@ -1607,7 +1607,7 @@ public class CMWinClient extends JFrame {
 					nValueByteNum = Integer.parseInt(eventFields[i+1].getText());
 					if(nValueByteNum < 0)
 					{
-						printMessage("CMClientApp.testUserEvent(), Invalid nValueByteNum("
+						printMessage("CM_Config.CMClientApp.testUserEvent(), Invalid nValueByteNum("
 								+nValueByteNum+")\n");
 						ue.removeAllEventFields();
 						ue = null;

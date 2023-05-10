@@ -1,3 +1,5 @@
+package CM_Config;
+
 import java.awt.*;
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -930,7 +932,7 @@ public class CMClientApp {
 					nValueByteNum = Integer.parseInt(strTokens[2]);
 					if(nValueByteNum < 0)
 					{
-						System.out.println("CMClientApp.testUserEvent(), Invalid nValueByteNum("
+						System.out.println("CM_Config.CMClientApp.testUserEvent(), Invalid nValueByteNum("
 								+nValueByteNum+")");
 						ue.removeAllEventFields();
 						ue = null;
