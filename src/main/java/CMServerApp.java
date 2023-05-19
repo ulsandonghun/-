@@ -1,4 +1,4 @@
-import kr.ac.konkuk.ccslab.cm.*;
+import kr.ac.konkuk.ccslab.cm.event.handler.CMAppEventHandler;
 import kr.ac.konkuk.ccslab.cm.stub.CMServerStub;
 
 public class CMServerApp {
@@ -21,7 +21,7 @@ public class CMServerApp {
     public static void main(String[] args) {
         CMServerApp server = new CMServerApp();
         CMServerStub cmStub = server.getServerStub();
-        cmStub.setAppEventHandler(server.getServerEventHandler());
+        cmStub.setAppEventHandler((CMAppEventHandler) server.getServerEventHandler());
         cmStub.startCM();
     }
 }
