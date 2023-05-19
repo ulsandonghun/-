@@ -1,17 +1,14 @@
 package multiServerClient;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.*;
+import java.util.*;
 
 public class MultiServer {
     private List<PrintWriter> clientOutputs;
     private JTextArea chatArea;
+    private String serverRepositoryPath;
 
     public static void main(String[] args) {
         MultiServer multiServer = new MultiServer();
@@ -21,6 +18,9 @@ public class MultiServer {
     public void start() {
         clientOutputs = new ArrayList<>();
         chatArea = new JTextArea();
+        serverRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\server\\";
+
+        // Specify the server repository directory
 
         JFrame frame = new JFrame("MultiServer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,23 +93,22 @@ public class MultiServer {
                     chatArea.append("전송받은 파일 내용:\n");
 
                     FileInputStream fis = new FileInputStream(filename);
+
                     byte[] byteBuff = new byte[9999];
                     int nRLen = fis.read(byteBuff);
                     String strBuff = new String(byteBuff, 0, nRLen);
 
                     chatArea.append(String.format("읽은 바이트 수[%d]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
-                    fis.close();
-
-                    FileOutputStream fos = new FileOutputStream("ServerRepository.txt");
-                    String strText = strBuff;
-                    fos.write(strText.getBytes());
+                    File file = new File(serverRepositoryPath + name + "_" + filename);
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(byteBuff, 0, nRLen);
                     fos.close();
 
-                    sendAll(name + "님께서 " + inputMsg + " 파일을 ServerRepository로 전송 완료하였습니다.");
+                    sendAll(name +
+                            "님께서 " + inputMsg + " 파일을 ServerRepository로 전송 완료하였습니다.");
                     chatArea.append("서버 저장소에 저장 완료.\n");
-
-                    if ("quit".equals(inputMsg))break;
+                    if ("quit".equals(inputMsg)) break;
                 }
             } catch (IOException e) {
                 chatArea.append("[" + name + " 접속 끊김]\n");
@@ -133,4 +132,3 @@ public class MultiServer {
         }
     }
 }
-

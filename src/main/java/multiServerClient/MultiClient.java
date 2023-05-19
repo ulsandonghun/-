@@ -1,13 +1,19 @@
 package multiServerClient;
 
-
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Socket;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.Socket;
 
 public class MultiClient {
@@ -16,8 +22,10 @@ public class MultiClient {
     private JTextField fileField;
     private JButton sendButton;
     private JTextArea chatArea;
+    private JButton checkButton;
     private Socket socket;
     private BufferedReader in;
+    private PrintStream out;
 
     public static void main(String[] args) {
         MultiClient multiClient = new MultiClient();
@@ -28,9 +36,11 @@ public class MultiClient {
         try {
             socket = new Socket("localhost", 8000);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintStream(socket.getOutputStream());
             initializeUI();
             loginButton.addActionListener(new LoginButtonListener());
             sendButton.addActionListener(new SendButtonListener());
+            checkButton.addActionListener(new CheckButtonListener());
             new ReceiveThread().start(); // Start a new thread to receive messages from the server
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +50,7 @@ public class MultiClient {
     private void initializeUI() {
         JFrame frame = new JFrame("MultiClient");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 400);
+        frame.setSize(500, 500);
         frame.setLayout(null);
 
         nameField = new JTextField();
@@ -64,6 +74,10 @@ public class MultiClient {
         chatArea.setEditable(false);
         frame.add(chatArea);
 
+        checkButton = new JButton("파일 업데이트 확인");
+        checkButton.setBounds(20, 350, 200, 30);
+        frame.add(checkButton);
+
         frame.setVisible(true);
     }
 
@@ -73,9 +87,9 @@ public class MultiClient {
             String name = nameField.getText();
             try {
                 // Send the name to the server
-                socket.getOutputStream().write((name + "\n").getBytes());
-                socket.getOutputStream().flush();
-            } catch (IOException ex) {
+                out.println(name);
+                out.flush();
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -87,9 +101,23 @@ public class MultiClient {
             String fileName = fileField.getText();
             try {
                 // Send the file name to the server
-                socket.getOutputStream().write((fileName + "\n").getBytes());
-                socket.getOutputStream().flush();
-            } catch (IOException ex) {
+                out.println(fileName);
+                out.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class CheckButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fileName = fileField.getText();
+            try {
+                // Send the file name to the server for update check
+                out.println("CHECK " + fileName);
+                out.flush();
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -99,7 +127,7 @@ public class MultiClient {
         @Override
         public void run() {
             try {
-                String line;
+                String      line;
                 while ((line = in.readLine()) != null) {
                     // Receive messages from the server and display them in the chat area
                     chatArea.append(line + "\n");
@@ -110,3 +138,4 @@ public class MultiClient {
         }
     }
 }
+
