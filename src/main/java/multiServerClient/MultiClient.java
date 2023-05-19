@@ -1,10 +1,13 @@
 package multiServerClient;
 
+
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class MultiClient {
@@ -14,7 +17,7 @@ public class MultiClient {
     private JButton sendButton;
     private JTextArea chatArea;
     private Socket socket;
-    private PrintStream out;
+    private BufferedReader in;
 
     public static void main(String[] args) {
         MultiClient multiClient = new MultiClient();
@@ -24,10 +27,11 @@ public class MultiClient {
     public void start() {
         try {
             socket = new Socket("localhost", 8000);
-            out = new PrintStream(socket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             initializeUI();
             loginButton.addActionListener(new LoginButtonListener());
             sendButton.addActionListener(new SendButtonListener());
+            new ReceiveThread().start(); // Start a new thread to receive messages from the server
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,8 +71,13 @@ public class MultiClient {
         @Override
         public void actionPerformed(ActionEvent e) {
             String name = nameField.getText();
-            out.println(name);
-            out.flush();
+            try {
+                // Send the name to the server
+                socket.getOutputStream().write((name + "\n").getBytes());
+                socket.getOutputStream().flush();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -76,9 +85,28 @@ public class MultiClient {
         @Override
         public void actionPerformed(ActionEvent e) {
             String fileName = fileField.getText();
-            out.println(fileName);
-            out.flush();
+            try {
+                // Send the file name to the server
+                socket.getOutputStream().write((fileName + "\n").getBytes());
+                socket.getOutputStream().flush();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class ReceiveThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                String line;
+                while ((line = in.readLine()) != null) {
+                    // Receive messages from the server and display them in the chat area
+                    chatArea.append(line + "\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
-
