@@ -1,14 +1,20 @@
 package multiServerClient;
 
-import java.io.BufferedReader;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
-import javax.swing.JOptionPane;
 
 public class MultiClient {
+    private JTextField nameField;
+    private JButton loginButton;
+    private JTextField fileField;
+    private JButton sendButton;
+    private JTextArea chatArea;
+    private Socket socket;
+    private PrintStream out;
 
     public static void main(String[] args) {
         MultiClient multiClient = new MultiClient();
@@ -16,65 +22,63 @@ public class MultiClient {
     }
 
     public void start() {
-        Socket socket = null;
-        BufferedReader in = null;
         try {
             socket = new Socket("localhost", 8000);
-            System.out.println("[서버와 연결되었습니다]");
-
-
-            String name = JOptionPane.showInputDialog("로그인할 이름을 입력하세요.");
-
-            Thread sendThread = new SendThread(socket, name);
-            sendThread.start();
-
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            while (in != null) {
-                String inputMsg = in.readLine();
-                if(("[" + name + "]님이 나가셨습니다").equals(inputMsg)) break;
-                System.out.println("From:" + inputMsg);
-            }
-        } catch (IOException e) {
-            System.out.println("[서버 접속끊김]");
-        } finally {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println("[서버 연결종료]");
-    }
-}
-
-class SendThread extends Thread {
-    Socket socket = null;
-    String name;
-
-    Scanner scanner = new Scanner(System.in);
-
-    public SendThread(Socket socket, String name) {
-        this.socket = socket;
-        this.name = name;
-    }
-
-    @Override
-    public void run() {
-        try {
-            // 최초1회는 client의 name을 서버에 전송
-            PrintStream out = new PrintStream(socket.getOutputStream());
-            out.println(name);
-            out.flush();
-
-            while (true) {
-                String outputMsg
-                        = JOptionPane.showInputDialog(name+"님 서버로 전송할 파일의 이름을 입력하세요.");
-                out.println(outputMsg);
-                out.flush();
-                if("quit".equals(outputMsg)) break;
-            }
+            out = new PrintStream(socket.getOutputStream());
+            initializeUI();
+            loginButton.addActionListener(new LoginButtonListener());
+            sendButton.addActionListener(new SendButtonListener());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private void initializeUI() {
+        JFrame frame = new JFrame("MultiClient");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 400);
+        frame.setLayout(null);
+
+        nameField = new JTextField();
+        nameField.setBounds(20, 20, 200, 30);
+        frame.add(nameField);
+
+        loginButton = new JButton("로그인");
+        loginButton.setBounds(240, 20, 100, 30);
+        frame.add(loginButton);
+
+        fileField = new JTextField();
+        fileField.setBounds(20, 60, 200, 30);
+        frame.add(fileField);
+
+        sendButton = new JButton("파일 전송");
+        sendButton.setBounds(240, 60, 100, 30);
+        frame.add(sendButton);
+
+        chatArea = new JTextArea();
+        chatArea.setBounds(20, 100, 320, 240);
+        chatArea.setEditable(false);
+        frame.add(chatArea);
+
+        frame.setVisible(true);
+    }
+
+    private class LoginButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String name = nameField.getText();
+            out.println(name);
+            out.flush();
+        }
+    }
+
+    private class SendButtonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fileName = fileField.getText();
+            out.println(fileName);
+            out.flush();
+        }
+    }
 }
+
