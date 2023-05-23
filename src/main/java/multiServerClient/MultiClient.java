@@ -15,14 +15,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-
 public class MultiClient {
     private JTextField nameField;
     private JButton loginButton;
     private JTextField fileField;
     private JButton sendButton;
     private JTextArea chatArea;
+
+    private JTextArea updateCheckArea;
+
     private JButton checkButton;
+
     private Socket socket;
     private BufferedReader in;
     private PrintStream out;
@@ -74,8 +77,12 @@ public class MultiClient {
         chatArea.setEditable(false);
         frame.add(chatArea);
 
+        updateCheckArea = new JTextArea();
+        updateCheckArea.setBounds(20, 350, 200, 30);
+        frame.add(updateCheckArea);
+
         checkButton = new JButton("파일 업데이트 확인");
-        checkButton.setBounds(20, 350, 200, 30);
+        checkButton.setBounds(240, 390, 100, 30);
         frame.add(checkButton);
 
         frame.setVisible(true);
@@ -112,10 +119,10 @@ public class MultiClient {
     private class CheckButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String fileName = fileField.getText();
+            String fileName = updateCheckArea.getText();
             try {
                 // Send the file name to the server for update check
-                out.println("CHECK " + fileName);
+                out.println("CHECK" + fileName);
                 out.flush();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -127,7 +134,7 @@ public class MultiClient {
         @Override
         public void run() {
             try {
-                String      line;
+                String line;
                 while ((line = in.readLine()) != null) {
                     // Receive messages from the server and display them in the chat area
                     chatArea.append(line + "\n");
@@ -138,4 +145,3 @@ public class MultiClient {
         }
     }
 }
-

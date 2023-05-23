@@ -87,6 +87,23 @@ public class MultiServer {
 
                 while (in != null) {
                     String inputMsg = in.readLine();
+                    //클라이언트가 보낸 String에서 Check 메세지가 오면 UPdate 프로토콜 시작
+                    if(inputMsg.substring(0,5).equals("CHECK")){
+                        String checkfile=inputMsg.substring(5,inputMsg.length());
+
+
+                        chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트를 진행합니다.\n");
+                        continue;
+
+                    }
+
+
+
+
+
+
+
+
                     String filename = inputMsg;
 
                     chatArea.append(name + "님이 " + filename + " 파일을 전송하였습니다.\n");
