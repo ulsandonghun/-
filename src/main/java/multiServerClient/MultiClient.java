@@ -6,20 +6,16 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.Socket;
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+
 public class MultiClient {
     private JTextField nameField;
     private JButton loginButton;
     private JTextField fileField;
+    private JTextField fileField1;
     private JButton sendButton;
+    private JButton sendButton1;
     private JTextArea chatArea;
 
     private JTextArea updateCheckArea;
@@ -43,6 +39,7 @@ public class MultiClient {
             initializeUI();
             loginButton.addActionListener(new LoginButtonListener());
             sendButton.addActionListener(new SendButtonListener());
+            sendButton1.addActionListener(new SendButton1Listener());
             checkButton.addActionListener(new CheckButtonListener());
             new ReceiveThread().start(); // Start a new thread to receive messages from the server
         } catch (IOException e) {
@@ -64,12 +61,20 @@ public class MultiClient {
         loginButton.setBounds(240, 20, 100, 30);
         frame.add(loginButton);
 
+        fileField1 = new JTextField();
+        fileField1.setBounds(20, 60, 100, 30);
+        frame.add(fileField1);
+
+        sendButton1 = new JButton("파일 전송");
+        sendButton1.setBounds(130, 60, 100, 30);
+        frame.add(sendButton1);
+
         fileField = new JTextField();
-        fileField.setBounds(20, 60, 200, 30);
+        fileField.setBounds(250, 60, 100, 30);
         frame.add(fileField);
 
         sendButton = new JButton("파일 전송");
-        sendButton.setBounds(240, 60, 100, 30);
+        sendButton.setBounds(360, 60, 100, 30);
         frame.add(sendButton);
 
         chatArea = new JTextArea();
@@ -81,8 +86,8 @@ public class MultiClient {
         updateCheckArea.setBounds(20, 350, 200, 30);
         frame.add(updateCheckArea);
 
-        checkButton = new JButton("파일 업데이트 확인");
-        checkButton.setBounds(240, 390, 100, 30);
+        checkButton = new JButton("파일 업데이트 탐지");
+        checkButton.setBounds(240, 350, 150, 30);
         frame.add(checkButton);
 
         frame.setVisible(true);
@@ -115,6 +120,21 @@ public class MultiClient {
             }
         }
     }
+
+    private class SendButton1Listener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fileName = fileField1.getText();
+            try {
+                // Send the file name to the server
+                out.println(fileName);
+                out.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
 
     private class CheckButtonListener implements ActionListener {
         @Override
