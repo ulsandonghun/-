@@ -91,8 +91,20 @@ public class MultiServer {
                     if(inputMsg.substring(0,5).equals("CHECK")){
                         String checkfile=inputMsg.substring(5,inputMsg.length());
 
+                        chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
 
-                        chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트를 진행합니다.\n");
+                        // 파일 변경 감지 로직을 구현
+                        boolean isUpdated = detectFileUpdate(name, checkfile);
+
+                        if (isUpdated) {
+                            chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
+                            // 변경된 파일에 대한 추가 동작 수행
+                            // 예: 변경된 파일 복사, 로그 작성 등
+                        } else {
+                            chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                        }
+
+
                         continue;
 
                     }
@@ -147,5 +159,30 @@ public class MultiServer {
                 out.flush();
             }
         }
+
+        private boolean detectFileUpdate(String name, String checkfile) {
+            String filePath = serverRepositoryPath + name + "_" + checkfile;
+            File file = new File(filePath);
+
+            if (file.exists()) {
+                long previousModifiedTime = file.lastModified();
+
+                try {
+                    // 일정 시간 동안 대기
+                    Thread.sleep(1000);
+
+                    file = new File(filePath);
+                    long currentModifiedTime = file.lastModified();
+
+                    return currentModifiedTime > previousModifiedTime;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return false;
+        }
     }
 }
+
+
