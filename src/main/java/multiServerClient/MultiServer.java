@@ -9,6 +9,7 @@ public class MultiServer {
     private List<PrintWriter> clientOutputs;
     private JTextArea chatArea;
     private String serverRepositoryPath;
+    private String clientRepositoryPath;
 
     public static void main(String[] args) {
         MultiServer multiServer = new MultiServer();
@@ -19,6 +20,8 @@ public class MultiServer {
         clientOutputs = new ArrayList<>();
         chatArea = new JTextArea();
         serverRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\server\\";
+        clientRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\client\\";
+
 
         // Specify the server repository directory
 
@@ -66,6 +69,8 @@ public class MultiServer {
         private PrintWriter out;
         private FileOutputStream fout;
 
+        private HashMap<String,Long> LogicalClock =new HashMap<>();
+
         public ReceiveThread(Socket socket) {
             this.socket = socket;
             try {
@@ -94,7 +99,7 @@ public class MultiServer {
                         chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
 
                         // 파일 변경 감지 로직을 구현
-                        boolean isUpdated = detectFileUpdate(name, checkfile);
+                        boolean isUpdated = LogicalClockDetect(name, checkfile);
 
                         if (isUpdated) {
                             chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
@@ -121,7 +126,7 @@ public class MultiServer {
                     chatArea.append(name + "님이 " + filename + " 파일을 전송하였습니다.\n");
                     chatArea.append("전송받은 파일 내용:\n");
 
-                    FileInputStream fis = new FileInputStream(filename);
+                    FileInputStream fis = new FileInputStream(clientRepositoryPath+filename);
 
                     byte[] byteBuff = new byte[9999];
                     int nRLen = fis.read(byteBuff);
@@ -130,6 +135,13 @@ public class MultiServer {
                     chatArea.append(String.format("읽은 바이트 수[%d]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
                     File file = new File(serverRepositoryPath + name + "_" + filename);
+
+
+                    LogicalClock.put(file.getPath(),file.lastModified());
+                    System.out.println("서버의 변경 시간"+LogicalClock.get(file.getPath()));
+
+
+
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(byteBuff, 0, nRLen);
                     fos.close();
@@ -160,24 +172,24 @@ public class MultiServer {
             }
         }
 
-        private boolean detectFileUpdate(String name, String checkfile) {
-            String filePath = serverRepositoryPath + name + "_" + checkfile;
-            File file = new File(filePath);
+        private boolean LogicalClockDetect(String name, String checkfile) {
+            String clientFilePath = clientRepositoryPath+ checkfile;
+            String serverFilePath = serverRepositoryPath + name + "_" + checkfile;
 
-            if (file.exists()) {
-                long previousModifiedTime = file.lastModified();
+            File clientFile = new File(clientFilePath);
+            File serverFile = new File(serverFilePath);
 
-                try {
-                    // 일정 시간 동안 대기
-                    Thread.sleep(1000);
 
-                    file = new File(filePath);
-                    long currentModifiedTime = file.lastModified();
 
-                    return currentModifiedTime > previousModifiedTime;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            if (clientFile.exists() && serverFile.exists()) {
+                long clientModifiedTime = clientFile.lastModified();
+                long serverModifiedTime = serverFile.lastModified();
+                System.out.println("클라이언트의 변경시간 :"+ clientModifiedTime);
+
+
+                System.out.println("서버의 변경 시간"+serverModifiedTime);
+
+                return clientModifiedTime > serverModifiedTime;
             }
 
             return false;
