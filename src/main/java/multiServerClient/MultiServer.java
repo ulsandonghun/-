@@ -97,16 +97,19 @@ public class MultiServer {
                         String checkfile=inputMsg.substring(5,inputMsg.length());
 
                         chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
+                        sendAll(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
 
                         // 파일 변경 감지 로직을 구현
                         boolean isUpdated = LogicalClockDetect(name, checkfile);
 
                         if (isUpdated) {
                             chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
+                            sendAll(name+"님의 "+checkfile + " 파일이 변경되었습니다.\n");
                             // 변경된 파일에 대한 추가 동작 수행
                             // 예: 변경된 파일 복사, 로그 작성 등
                         } else {
                             chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                            sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
                         }
 
 
@@ -132,7 +135,7 @@ public class MultiServer {
                     int nRLen = fis.read(byteBuff);
                     String strBuff = new String(byteBuff, 0, nRLen);
 
-                    chatArea.append(String.format("읽은 바이트 수[%d]:\n읽은 내용:\n%s\n", nRLen, strBuff));
+                    chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
                     File file = new File(serverRepositoryPath + name + "_" + filename);
 
