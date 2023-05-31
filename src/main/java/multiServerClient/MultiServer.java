@@ -103,16 +103,17 @@ public class MultiServer {
                         String clientFilePath = clientRepositoryPath + checkfile;
                         File deleteFile = new File(clientFilePath);
                         if (!deleteFile.exists()) {
-                            chatArea.append(checkfile + " 은 삭제되었습니다.");
+                            chatArea.append(checkfile + " 은 삭제되었습니다.\n");
                             sendAll(checkfile + " 파일은 클라이언트에서 삭제되었습니다.\n");
 
                             // 서버 저장소에서도 삭제
                             String serverFilePath = serverRepositoryPath + name + "_" + checkfile;
                             File serverFile = new File(serverFilePath);
                             if (serverFile.exists()) {
+                                //해당 파일이 클라이언트에 존재하는 확인.
                                 serverFile.delete();
-                                chatArea.append(name+"_" + " 파일을 서버 저장소에서 삭제하였습니다.\n");
-                                sendAll(serverFilePath + " 파일을 서버 저장소에서 삭제하였습니다.\n");
+                                chatArea.append(name+"_" +checkfile+" 파일을 서버 저장소에서 삭제하였습니다.\n");
+                                sendAll(checkfile + " 파일을 서버 저장소에서 삭제하였습니다.\n");
                             }
                             continue;
 
@@ -122,13 +123,34 @@ public class MultiServer {
 
                             if (isUpdated) {
                                 chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
+
                                 sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
-                                // 변경된 파일에 대한 추가 동작 수행
+
+                                // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
+
+                                File file = new File(serverRepositoryPath + name + "_" + checkfile);
+
+
+                                LogicalClock.put(file.getPath(),file.lastModified());
+                                System.out.println("서버의 변경 시간을 LOGICALCLOCK MAP에 저장"+LogicalClock.get(file.getPath()));
+
+
+
+                                FileOutputStream fos = new FileOutputStream(file);
+                                fos.write(checkfile.getBytes());
+                                fos.close();
+
+                                sendAll(name +
+                                        "님께서 " + checkfile + " 파일을 서버로 덮어쓰기 완료하였습니다.");
+                                chatArea.append("서버 저장소에 저장 완료.\n");
+
 
 
                             } else {
                                 chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                chatArea.append(checkfile + " 파일은 충돌하지 않습니다.\n");
                                 sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                sendAll(name + "님의 " + checkfile + " 파일이 충돌되지 않습니다.\n");
                             }
 
 
@@ -210,21 +232,26 @@ public class MultiServer {
                 long serverModifiedTime = serverFile.lastModified();
 
                 //클라이언트영역의 파일이 변경된 시점이, 서버영역의 변경 시점보다 빠른지 계산.
-                long existingCLOCK= LogicalClock.get(serverFilePath);
-                if(existingCLOCK!=serverModifiedTime){
+                try {
+                    long existingCLOCK = LogicalClock.get(serverFilePath);
 
-                    LogicalClock.put(serverFilePath,serverModifiedTime);
+                    if (existingCLOCK != serverModifiedTime) {
+
+                        LogicalClock.put(serverFilePath, serverModifiedTime);
+                    }
+                    long LOGICALCLOCK_NEW = LogicalClock.get(serverFilePath);
+
+                    System.out.println("클라이언트의 변경시간 :" + clientModifiedTime);
+
+
+                    System.out.println("서버의 변경 시간" + LOGICALCLOCK_NEW);
+
+                    return clientModifiedTime > LOGICALCLOCK_NEW;
+                } catch(Exception e){
+                     return clientModifiedTime>serverModifiedTime;
                 }
-                long LOGICALCLOCK_NEW=LogicalClock.get(serverFilePath);
 
-                System.out.println("클라이언트의 변경시간 :"+ clientModifiedTime);
-
-
-                System.out.println("서버의 변경 시간"+LOGICALCLOCK_NEW);
-
-                return clientModifiedTime > LOGICALCLOCK_NEW;
             }
-
             return false;
         }
     }
