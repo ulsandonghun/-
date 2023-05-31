@@ -78,7 +78,7 @@ public class MultiClient {
         frame.add(sendButton);
 
         chatArea = new JTextArea();
-        chatArea.setBounds(20, 100, 320, 240);
+        chatArea.setBounds(20, 100, 400, 240);
         chatArea.setEditable(false);
         frame.add(chatArea);
 
@@ -86,8 +86,8 @@ public class MultiClient {
         updateCheckArea.setBounds(20, 350, 200, 30);
         frame.add(updateCheckArea);
 
-        checkButton = new JButton("파일 업데이트 탐지");
-        checkButton.setBounds(240, 350, 150, 30);
+        checkButton = new JButton("파일 업데이트&삭제 탐지");
+        checkButton.setBounds(240, 350, 240, 30);
         frame.add(checkButton);
 
         frame.setVisible(true);
