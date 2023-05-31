@@ -93,28 +93,48 @@ public class MultiServer {
                 while (in != null) {
                     String inputMsg = in.readLine();
                     //클라이언트가 보낸 String에서 Check 메세지가 오면 UPdate 프로토콜 시작
-                    if(inputMsg.substring(0,5).equals("CHECK")){
-                        String checkfile=inputMsg.substring(5,inputMsg.length());
+                    if(inputMsg.substring(0,5).equals("CHECK")) {
+                        String checkfile = inputMsg.substring(5, inputMsg.length());
 
-                        chatArea.append(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
-                        sendAll(name+"님의 요청으로"+checkfile+"에 대한 파일 업데이트탐지를 진행합니다.\n");
+                        chatArea.append(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
+                        sendAll(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
 
                         // 파일 변경 감지 로직을 구현
-                        boolean isUpdated = LogicalClockDetect(name, checkfile);
+                        String clientFilePath = clientRepositoryPath + checkfile;
+                        File deleteFile = new File(clientFilePath);
+                        if (!deleteFile.exists()) {
+                            chatArea.append(checkfile + " 은 삭제되었습니다.");
+                            sendAll(checkfile + " 파일은 클라이언트에서 삭제되었습니다.\n");
 
-                        if (isUpdated) {
-                            chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
-                            sendAll(name+"님의 "+checkfile + " 파일이 변경되었습니다.\n");
-                            // 변경된 파일에 대한 추가 동작 수행
-                            // 예: 변경된 파일 복사, 로그 작성 등
+                            // 서버 저장소에서도 삭제
+                            String serverFilePath = serverRepositoryPath + name + "_" + checkfile;
+                            File serverFile = new File(serverFilePath);
+                            if (serverFile.exists()) {
+                                serverFile.delete();
+                                chatArea.append(name+"_" + " 파일을 서버 저장소에서 삭제하였습니다.\n");
+                                sendAll(serverFilePath + " 파일을 서버 저장소에서 삭제하였습니다.\n");
+                            }
+                            continue;
+
+
                         } else {
-                            chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
-                            sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
+                            boolean isUpdated = LogicalClockDetect(name, checkfile);
+
+                            if (isUpdated) {
+                                chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
+                                sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
+                                // 변경된 파일에 대한 추가 동작 수행
+
+
+                            } else {
+                                chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
+                            }
+
+
+                            continue;
+
                         }
-
-
-                        continue;
-
                     }
 
 
