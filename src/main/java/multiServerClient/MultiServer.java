@@ -68,14 +68,17 @@ public class MultiServer {
         private BufferedReader in;
         private PrintWriter out;
         private FileOutputStream fout;
+        InputStream inputStream;
+        DataInputStream dataInputStream=new DataInputStream(inputStream);
 
         private HashMap<String,Long> LogicalClock =new HashMap<>();
 
-        public ReceiveThread(Socket socket) {
+        public ReceiveThread(Socket socket) throws IOException {
             this.socket = socket;
             try {
                 out = new PrintWriter(socket.getOutputStream());
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                inputStream=socket.getInputStream();
                 clientOutputs.add(out);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -86,20 +89,19 @@ public class MultiServer {
         public void run() {
             String name = "";
             try {
-                name = in.readLine();
+               name = in.readLine();
                 chatArea.append("[" + name + " 새 연결 생성]\n");
                 sendAll("[" + name + "]님이 서버에 로그인하였습니다.");
 
                 while (in != null) {
+
+
                     String inputMsg = in.readLine();
                     //클라이언트가 보낸 String에서 Check 메세지가 오면 UPdate 프로토콜 시작
-                    if(inputMsg.substring(0,5).equals("CHECK")) {
-                        String checkfile = inputMsg.substring(5, inputMsg.length());
 
-                        chatArea.append(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
-                        sendAll(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
-
-                        // 파일 변경 감지 로직을 구현
+                    if(inputMsg.substring(0,4).equals("sync")){
+                        sendAll(name+"님의" +inputMsg.substring(3,inputMsg.length())+"파일 동기화를 수행합니다.\n");
+                       String checkfile=inputMsg.substring(4,inputMsg.length());
                         String clientFilePath = clientRepositoryPath + checkfile;
                         File deleteFile = new File(clientFilePath);
                         if (!deleteFile.exists()) {
@@ -124,9 +126,23 @@ public class MultiServer {
                             if (isUpdated) {
                                 chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
 
+
                                 sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
 
+
+
                                 // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
+
+
+
+
+                                FileInputStream fis = new FileInputStream(clientRepositoryPath+checkfile);
+
+                                byte[] byteBuff = new byte[9999];
+                                int nRLen = fis.read(byteBuff);
+                                String strBuff = new String(byteBuff, 0, nRLen);
+
+                                chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
                                 File file = new File(serverRepositoryPath + name + "_" + checkfile);
 
@@ -137,8 +153,9 @@ public class MultiServer {
 
 
                                 FileOutputStream fos = new FileOutputStream(file);
-                                fos.write(checkfile.getBytes());
+                                fos.write(byteBuff, 0, nRLen);
                                 fos.close();
+
 
                                 sendAll(name +
                                         "님께서 " + checkfile + " 파일을 서버로 덮어쓰기 완료하였습니다.");
@@ -151,6 +168,47 @@ public class MultiServer {
                                 chatArea.append(checkfile + " 파일은 충돌하지 않습니다.\n");
                                 sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
                                 sendAll(name + "님의 " + checkfile + " 파일이 충돌되지 않습니다.\n");
+                            }
+
+
+                            continue;
+
+                        }
+
+                    }
+                    if(inputMsg.substring(0,5).equals("CHECK")) {
+                        String checkfile = inputMsg.substring(5, inputMsg.length());
+
+                        chatArea.append(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
+                        sendAll(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
+
+                        // 파일 변경 감지 로직을 구현
+                        String clientFilePath = clientRepositoryPath + checkfile;
+                        File deleteFile = new File(clientFilePath);
+                        if (!deleteFile.exists()) {
+                            chatArea.append(checkfile + " 은 삭제되었습니다.\n");
+                            sendAll(checkfile + " 파일은 클라이언트에서 삭제되었습니다.\n");
+
+
+                            continue;
+
+
+                        } else {
+                            boolean isUpdated = LogicalClockDetect(name, checkfile);
+
+                            if (isUpdated) {
+                                chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
+                                chatArea.append(checkfile + " 파일 충돌 되었습니다 !!!\n");
+
+                                sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
+                                sendAll(name + "님의 " + checkfile + " 파일이 충돌됩니다 !!!\n");
+
+
+                                // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
+
+                            } else {
+                                chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
                             }
 
 
