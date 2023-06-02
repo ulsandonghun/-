@@ -99,8 +99,45 @@ public class MultiServer {
                     String inputMsg = in.readLine();
                     //클라이언트가 보낸 String에서 Check 메세지가 오면 UPdate 프로토콜 시작
 
+                    if(inputMsg.substring(0,4).equals("send")){
+                        String format= inputMsg.substring(4,inputMsg.length());
+                        int i =format.indexOf('_');
+                        String client =format.substring(0,i);
+                        System.out.println("client = " + client);
+                        format=format.substring(i+1,format.length());
+                        System.out.println("format = " + format);
+
+
+
+
+                        sendAll(name+"님이 "+client+" 님에게 " +format+"파일 을 전송합니다.\n");
+                        FileInputStream fis = new FileInputStream(clientRepositoryPath+format);
+
+                        byte[] byteBuff = new byte[9999];
+                        int nRLen = fis.read(byteBuff);
+                        String strBuff = new String(byteBuff, 0, nRLen);
+
+                        chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
+
+                        File file = new File(serverRepositoryPath + client + "_" + format);
+
+
+                        LogicalClock.put(file.getPath(),file.lastModified());
+                        System.out.println("서버의 변경 시간을 LOGICALCLOCK MAP에 저장"+LogicalClock.get(file.getPath()));
+
+
+
+                        FileOutputStream fos = new FileOutputStream(file);
+                        fos.write(byteBuff, 0, nRLen);
+                        fos.close();
+
+                        continue;
+
+
+                    }
+
                     if(inputMsg.substring(0,4).equals("sync")){
-                        sendAll(name+"님의" +inputMsg.substring(3,inputMsg.length())+"파일 동기화를 수행합니다.\n");
+                        sendAll(name+"님의" +inputMsg.substring(4,inputMsg.length())+"파일 동기화를 수행합니다.\n");
                        String checkfile=inputMsg.substring(4,inputMsg.length());
                         String clientFilePath = clientRepositoryPath + checkfile;
                         File deleteFile = new File(clientFilePath);
