@@ -92,6 +92,15 @@ public class MultiServer {
                name = in.readLine();
                 chatArea.append("[" + name + " 새 연결 생성]\n");
                 sendAll("[" + name + "]님이 서버에 로그인하였습니다.");
+                String clipath=clientRepositoryPath+"\\"+name+"\\";
+                String servpath=serverRepositoryPath+"\\"+name+"\\";
+                File folder=new File(clipath);
+                File folder1=new File(servpath);
+                if(!folder.exists()){
+                    folder.mkdir();
+                };if(!folder1.exists()){
+                    folder1.mkdir();
+                };
 
                 while (in != null) {
 
@@ -111,7 +120,7 @@ public class MultiServer {
 
 
                         sendAll(name+"님이 "+client+" 님에게 " +format+"파일 을 전송합니다.\n");
-                        FileInputStream fis = new FileInputStream(clientRepositoryPath+format);
+                        FileInputStream fis = new FileInputStream(clipath+format);
 
                         byte[] byteBuff = new byte[9999];
                         int nRLen = fis.read(byteBuff);
@@ -119,7 +128,7 @@ public class MultiServer {
 
                         chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
-                        File file = new File(serverRepositoryPath + client + "_" + format);
+                        File file = new File(serverRepositoryPath+client+"\\"+format);
 
 
                         LogicalClock.put(file.getPath(),file.lastModified());
@@ -139,14 +148,14 @@ public class MultiServer {
                     if(inputMsg.substring(0,4).equals("sync")){
                         sendAll(name+"님의" +inputMsg.substring(4,inputMsg.length())+"파일 동기화를 수행합니다.\n");
                        String checkfile=inputMsg.substring(4,inputMsg.length());
-                        String clientFilePath = clientRepositoryPath + checkfile;
+                        String clientFilePath = clipath + checkfile;
                         File deleteFile = new File(clientFilePath);
                         if (!deleteFile.exists()) {
                             chatArea.append(checkfile + " 은 삭제되었습니다.\n");
                             sendAll(checkfile + " 파일은 클라이언트에서 삭제되었습니다.\n");
 
                             // 서버 저장소에서도 삭제
-                            String serverFilePath = serverRepositoryPath + name + "_" + checkfile;
+                            String serverFilePath = servpath+checkfile;
                             File serverFile = new File(serverFilePath);
                             if (serverFile.exists()) {
                                 //해당 파일이 클라이언트에 존재하는 확인.
@@ -173,7 +182,7 @@ public class MultiServer {
 
 
 
-                                FileInputStream fis = new FileInputStream(clientRepositoryPath+checkfile);
+                                FileInputStream fis = new FileInputStream(clipath+checkfile);
 
                                 byte[] byteBuff = new byte[9999];
                                 int nRLen = fis.read(byteBuff);
@@ -181,7 +190,7 @@ public class MultiServer {
 
                                 chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
-                                File file = new File(serverRepositoryPath + name + "_" + checkfile);
+                                File file = new File(servpath+ checkfile);
 
 
                                 LogicalClock.put(file.getPath(),file.lastModified());
@@ -220,7 +229,7 @@ public class MultiServer {
                         sendAll(name + "님의 요청으로" + checkfile + "에 대한 파일 업데이트탐지를 진행합니다.\n");
 
                         // 파일 변경 감지 로직을 구현
-                        String clientFilePath = clientRepositoryPath + checkfile;
+                        String clientFilePath = clipath + checkfile;
                         File deleteFile = new File(clientFilePath);
                         if (!deleteFile.exists()) {
                             chatArea.append(checkfile + " 은 삭제되었습니다.\n");
@@ -266,7 +275,7 @@ public class MultiServer {
                     chatArea.append(name + "님이 " + filename + " 파일을 전송하였습니다.\n");
                     chatArea.append("전송받은 파일 내용:\n");
 
-                    FileInputStream fis = new FileInputStream(clientRepositoryPath+filename);
+                    FileInputStream fis = new FileInputStream(clipath+filename);
 
                     byte[] byteBuff = new byte[9999];
                     int nRLen = fis.read(byteBuff);
@@ -274,7 +283,7 @@ public class MultiServer {
 
                     chatArea.append(String.format("읽은 바이트 수[%d byte]:\n읽은 내용:\n%s\n", nRLen, strBuff));
 
-                    File file = new File(serverRepositoryPath + name + "_" + filename);
+                    File file = new File(servpath  + filename);
 
 
                     LogicalClock.put(file.getPath(),file.lastModified());
@@ -313,8 +322,8 @@ public class MultiServer {
         }
 
         private boolean LogicalClockDetect(String name, String checkfile) {
-            String clientFilePath = clientRepositoryPath+ checkfile;
-            String serverFilePath = serverRepositoryPath + name + "_" + checkfile;
+            String clientFilePath = clientRepositoryPath+name+"\\"+ checkfile;
+            String serverFilePath = serverRepositoryPath + name + "\\" + checkfile;
 
             File clientFile = new File(clientFilePath);
             File serverFile = new File(serverFilePath);

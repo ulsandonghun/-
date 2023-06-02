@@ -14,7 +14,7 @@ public class MultiClient {
     private JButton sendButton;
     private JButton sendButton1;
     private JTextArea chatArea;
-
+private String name;
 
 
     private JTextArea updateCheckArea;
@@ -93,6 +93,10 @@ public class MultiClient {
         chatArea.setEditable(false);
         frame.add(chatArea);
 
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setBounds(20, 100, 400, 240);
+        frame.add(scrollPane);
+
         updateCheckArea = new JTextArea();
         updateCheckArea.setBounds(20, 350, 200, 30);
         frame.add(updateCheckArea);
@@ -132,7 +136,7 @@ public class MultiClient {
     private class LoginButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = nameField.getText();
+            name = nameField.getText();
             try {
                 // Send the name to the server
                 out.println(name);
@@ -162,7 +166,7 @@ public class MultiClient {
         public void actionPerformed(ActionEvent e) {
             String fileName = fileField1.getText();
             try {
-                FileInputStream fin=new FileInputStream(clientRepositoryPath+fileName);
+                FileInputStream fin=new FileInputStream(clientRepositoryPath+name+"\\"+fileName);
                 // Send the file name to the server
                 byte[] buffer = new byte[1024];
                 int len;
@@ -175,7 +179,7 @@ public class MultiClient {
                 int datas = data;
 
                 fin.close();
-                fin = new FileInputStream(clientRepositoryPath+fileName);
+                fin = new FileInputStream(clientRepositoryPath+name+"\\"+fileName);
 
 
                 len = 0;
