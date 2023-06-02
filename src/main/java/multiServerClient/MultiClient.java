@@ -3,10 +3,7 @@ package multiServerClient;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.Socket;
 
 public class MultiClient {
@@ -17,14 +14,25 @@ public class MultiClient {
     private JButton sendButton;
     private JButton sendButton1;
     private JTextArea chatArea;
+private String name;
+
 
     private JTextArea updateCheckArea;
+    private JTextArea syncArea;
 
     private JButton checkButton;
+    private JButton syncButton;
+
+    private JTextArea sendClientArea;
+    private JButton sendClientButton;
 
     private Socket socket;
     private BufferedReader in;
     private PrintStream out;
+
+    private DataOutputStream dataOutputStream;
+
+    private String clientRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\client\\";
 
     public static void main(String[] args) {
         MultiClient multiClient = new MultiClient();
@@ -36,11 +44,14 @@ public class MultiClient {
             socket = new Socket("localhost", 8000);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintStream(socket.getOutputStream());
+            dataOutputStream=new DataOutputStream(socket.getOutputStream());
             initializeUI();
             loginButton.addActionListener(new LoginButtonListener());
             sendButton.addActionListener(new SendButtonListener());
             sendButton1.addActionListener(new SendButton1Listener());
             checkButton.addActionListener(new CheckButtonListener());
+            syncButton.addActionListener(new syncbuttonListener());
+            sendClientButton.addActionListener(new sendClientListener());
             new ReceiveThread().start(); // Start a new thread to receive messages from the server
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,6 +93,10 @@ public class MultiClient {
         chatArea.setEditable(false);
         frame.add(chatArea);
 
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setBounds(20, 100, 400, 240);
+        frame.add(scrollPane);
+
         updateCheckArea = new JTextArea();
         updateCheckArea.setBounds(20, 350, 200, 30);
         frame.add(updateCheckArea);
@@ -90,13 +105,38 @@ public class MultiClient {
         checkButton.setBounds(240, 350, 240, 30);
         frame.add(checkButton);
 
+
+        syncArea = new JTextArea();
+        syncArea.setBounds(20, 390, 200, 30);
+        frame.add(syncArea);
+
+
+
+        syncButton = new JButton("파일 동기화");
+        syncButton.setBounds(240, 390, 240, 30);
+        frame.add(syncButton);
+
+
+        sendClientArea = new JTextArea();
+        sendClientArea.setBounds(20, 430, 200, 30);
+        frame.add(sendClientArea);
+
+
+
+        sendClientButton = new JButton("클라이언트에게 파일 전송");
+        sendClientButton.setBounds(240, 430, 240, 30);
+        frame.add(sendClientButton);
+
+
+
+
         frame.setVisible(true);
     }
 
     private class LoginButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String name = nameField.getText();
+            name = nameField.getText();
             try {
                 // Send the name to the server
                 out.println(name);
@@ -126,7 +166,30 @@ public class MultiClient {
         public void actionPerformed(ActionEvent e) {
             String fileName = fileField1.getText();
             try {
+                FileInputStream fin=new FileInputStream(clientRepositoryPath+name+"\\"+fileName);
                 // Send the file name to the server
+                byte[] buffer = new byte[1024];
+                int len;
+                int data=0;
+
+                while((len = fin.read(buffer))>0){
+                    data++;
+                }
+
+                int datas = data;
+
+                fin.close();
+                fin = new FileInputStream(clientRepositoryPath+name+"\\"+fileName);
+
+
+                len = 0;
+
+                for(;data>0;data--){
+                    len = fin.read(buffer);
+                    dataOutputStream.write(buffer,0,0);
+                }
+
+
                 out.println(fileName);
                 out.flush();
             } catch (Exception ex) {
@@ -142,7 +205,38 @@ public class MultiClient {
             String fileName = updateCheckArea.getText();
             try {
                 // Send the file name to the server for update check
+
                 out.println("CHECK" + fileName);
+                out.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class syncbuttonListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fileName = syncArea.getText();
+            try {
+                // Send the file name to the server for update check
+
+                out.println( "sync"+fileName);
+                out.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class sendClientListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String fileName = sendClientArea.getText();
+            try {
+                // Send the file name to the server for update check
+
+                out.println( "send"+fileName);
                 out.flush();
             } catch (Exception ex) {
                 ex.printStackTrace();
