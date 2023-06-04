@@ -88,6 +88,7 @@ public class MultiServer {
         @Override
         public void run() {
             String name = "";
+            List<String> sharedmember=new ArrayList<>();
             try {
                name = in.readLine();
                 chatArea.append("[" + name + " 새 연결 생성]\n");
@@ -112,6 +113,7 @@ public class MultiServer {
                         String format= inputMsg.substring(4,inputMsg.length());
                         int i =format.indexOf('_');
                         String client =format.substring(0,i);
+                        sharedmember.add(client);
                         System.out.println("client = " + client);
                         format=format.substring(i+1,format.length());
                         System.out.println("format = " + format);
@@ -119,7 +121,7 @@ public class MultiServer {
 
 
 
-                        sendAll(name+"님이 "+client+" 님에게 " +format+"파일 을 전송합니다.\n");
+                        sendAll(name+"님이 "+client+" 님에게 " +format+"파일 을 공유합니다.\n");
                         FileInputStream fis = new FileInputStream(clipath+format);
 
                         byte[] byteBuff = new byte[9999];
@@ -199,6 +201,17 @@ public class MultiServer {
 
 
                                 FileOutputStream fos = new FileOutputStream(file);
+                                if(!sharedmember.isEmpty()){
+                                    for(int i=0;i<sharedmember.size();i++){
+                                    sendAll(name+"님이 공유한 "+sharedmember.get(i)+"님의 파일도 함께 동기화됩니다. ");
+
+                                    File file1=new File(serverRepositoryPath+sharedmember.get(i)+"\\"+checkfile);
+                                    FileOutputStream fos1=new FileOutputStream(file1);
+
+                                    fos1.write(byteBuff,0,nRLen);
+                                    fos1.close();
+                                    }
+                                }
                                 fos.write(byteBuff, 0, nRLen);
                                 fos.close();
 
@@ -243,18 +256,19 @@ public class MultiServer {
                             boolean isUpdated = LogicalClockDetect(name, checkfile);
 
                             if (isUpdated) {
-                                chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
-                                chatArea.append(checkfile + " 파일 충돌 되었습니다 !!!\n");
+                                chatArea.append(checkfile + " 파일이 다른 클라이언트에 의해 변경되었습니다.\n");
 
-                                sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
-                                sendAll(name + "님의 " + checkfile + " 파일이 충돌됩니다 !!!\n");
+
+                                sendAll(name + "님의 " + checkfile + " 파일이 누군가에 의해 변경되었습니다.\n");
 
 
                                 // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
 
                             } else {
                                 chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                chatArea.append(checkfile + " 파일은 충돌되지 않습니다.\n");
                                 sendAll(checkfile + " 파일은 변경되지 않았습니다.\n");
+                                sendAll(checkfile + " 파일은 충돌되지 않습니다.\n");
                             }
 
 
@@ -296,7 +310,7 @@ public class MultiServer {
                     fos.close();
 
                     sendAll(name +
-                            "님께서 " + inputMsg + " 파일을 ServerRepository로 전송 완료하였습니다.");
+                            "님께서 " + inputMsg + " 파일을 서버로 전송 완료하였습니다.");
                     chatArea.append("서버 저장소에 저장 완료.\n");
                     if ("quit".equals(inputMsg)) break;
                 }
