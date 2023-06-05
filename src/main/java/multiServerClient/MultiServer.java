@@ -22,9 +22,6 @@ public class MultiServer {
         serverRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\server\\";
         clientRepositoryPath = "C:\\WinterSchool-spring\\분산시스템과제\\client\\";
 
-
-        // Specify the server repository directory
-
         JFrame frame = new JFrame("MultiServer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 400);
@@ -117,14 +114,10 @@ public class MultiServer {
                         System.out.println("client = " + client);
                         format=format.substring(i+1,format.length());
                         System.out.println("format = " + format);
-
-
-
-
                         sendAll(name+"님이 "+client+" 님에게 " +format+"파일 을 공유합니다.\n");
                         FileInputStream fis = new FileInputStream(clipath+format);
 
-                        byte[] byteBuff = new byte[9999];
+                        byte[] byteBuff = new byte[20971520];
                         int nRLen = fis.read(byteBuff);
                         String strBuff = new String(byteBuff, 0, nRLen);
 
@@ -174,19 +167,14 @@ public class MultiServer {
                             if (isUpdated) {
                                 chatArea.append(checkfile + " 파일이 변경되었습니다.\n");
 
-
                                 sendAll(name + "님의 " + checkfile + " 파일이 변경되었습니다.\n");
-
 
 
                                 // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
 
-
-
-
                                 FileInputStream fis = new FileInputStream(clipath+checkfile);
 
-                                byte[] byteBuff = new byte[9999];
+                                byte[] byteBuff = new byte[20971520];
                                 int nRLen = fis.read(byteBuff);
                                 String strBuff = new String(byteBuff, 0, nRLen);
 
@@ -278,12 +266,6 @@ public class MultiServer {
                     }
 
 
-
-
-
-
-
-
                     String filename = inputMsg;
 
                     chatArea.append(name + "님이 " + filename + " 파일을 전송하였습니다.\n");
@@ -291,7 +273,7 @@ public class MultiServer {
 
                     FileInputStream fis = new FileInputStream(clipath+filename);
 
-                    byte[] byteBuff = new byte[9999];
+                    byte[] byteBuff = new byte[20971520];
                     int nRLen = fis.read(byteBuff);
                     String strBuff = new String(byteBuff, 0, nRLen);
 
