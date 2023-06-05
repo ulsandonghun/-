@@ -138,7 +138,7 @@ private String name;
         public void actionPerformed(ActionEvent e) {
             name = nameField.getText();
             try {
-                // Send the name to the server
+
                 out.println(name);
                 out.flush();
             } catch (Exception ex) {
@@ -152,7 +152,7 @@ private String name;
         public void actionPerformed(ActionEvent e) {
             String fileName = fileField.getText();
             try {
-                // Send the file name to the server
+
                 out.println(fileName);
                 out.flush();
             } catch (Exception ex) {
@@ -167,7 +167,7 @@ private String name;
             String fileName = fileField1.getText();
             try {
                 FileInputStream fin=new FileInputStream(clientRepositoryPath+name+"\\"+fileName);
-                // Send the file name to the server
+
                 byte[] buffer = new byte[1024];
                 int len;
                 int data=0;
@@ -203,8 +203,7 @@ private String name;
         @Override
         public void actionPerformed(ActionEvent e) {
             String fileName = updateCheckArea.getText();
-            try {
-                // Send the file name to the server for update check
+           try{
 
                 out.println("CHECK" + fileName);
                 out.flush();
@@ -219,7 +218,7 @@ private String name;
         public void actionPerformed(ActionEvent e) {
             String fileName = syncArea.getText();
             try {
-                // Send the file name to the server for update check
+
 
                 out.println( "sync"+fileName);
                 out.flush();
@@ -234,7 +233,7 @@ private String name;
         public void actionPerformed(ActionEvent e) {
             String fileName = sendClientArea.getText();
             try {
-                // Send the file name to the server for update check
+
 
                 out.println( "send"+fileName);
                 out.flush();
@@ -250,7 +249,7 @@ private String name;
             try {
                 String line;
                 while ((line = in.readLine()) != null) {
-                    // Receive messages from the server and display them in the chat area
+
                     chatArea.append(line + "\n");
                 }
             } catch (IOException e) {
