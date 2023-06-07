@@ -52,7 +52,7 @@ private String name;
             checkButton.addActionListener(new CheckButtonListener());
             syncButton.addActionListener(new syncbuttonListener());
             sendClientButton.addActionListener(new sendClientListener());
-            new ReceiveThread().start(); // Start a new thread to receive messages from the server
+            new ReceiveThread().start();
         } catch (IOException e) {
             e.printStackTrace();
         }
