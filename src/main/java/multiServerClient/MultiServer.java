@@ -184,7 +184,7 @@ public class MultiServer {
 
 
                                 LogicalClock.put(file.getPath(),file.lastModified());
-                                System.out.println("서버의 변경 시간을 LOGICALCLOCK MAP에 저장"+LogicalClock.get(file.getPath()));
+//                                System.out.println("서버의 변경 시간을 LOGICALCLOCK MAP에 저장"+LogicalClock.get(file.getPath()));
 
 
 
@@ -341,10 +341,10 @@ public class MultiServer {
                     }
                     long LOGICALCLOCK_NEW = LogicalClock.get(serverFilePath);
 
-                    System.out.println("클라이언트의 변경시간 :" + clientModifiedTime);
+//                    System.out.println("클라이언트의 변경시간 :" + clientModifiedTime);
 
 
-                    System.out.println("서버의 변경 시간" + LOGICALCLOCK_NEW);
+//                    System.out.println("서버의 변경 시간" + LOGICALCLOCK_NEW);
 
                     return clientModifiedTime > LOGICALCLOCK_NEW;
                 } catch(Exception e){
