@@ -101,7 +101,7 @@ private String name;
         updateCheckArea.setBounds(20, 350, 200, 30);
         frame.add(updateCheckArea);
 
-        checkButton = new JButton("파일 업데이트&삭제 탐지");
+        checkButton = new JButton("파일 변화 및 삭제 탐지");
         checkButton.setBounds(240, 350, 240, 30);
         frame.add(checkButton);
 
