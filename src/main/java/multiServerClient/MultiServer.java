@@ -182,11 +182,8 @@ public class MultiServer {
 
                                 File file = new File(servpath+ checkfile);
 
-
                                 LogicalClock.put(file.getPath(),file.lastModified());
 //                                System.out.println("서버의 변경 시간을 LOGICALCLOCK MAP에 저장"+LogicalClock.get(file.getPath()));
-
-
 
                                 FileOutputStream fos = new FileOutputStream(file);
                                 if(!sharedmember.isEmpty()){
@@ -231,9 +228,16 @@ public class MultiServer {
 
                         // 파일 변경 감지 로직을 구현
                         String clientFilePath = clipath + checkfile;
+                        String ServerFilePath= servpath+checkfile;
                         File deleteFile = new File(clientFilePath);
+                        File serverExist=new File(ServerFilePath);
+                        if(!serverExist.exists()){
+                            chatArea.append(checkfile + " 은 새로 생성되었습니다.\n");
+                            sendAll(checkfile + " 파일은 새로 생성되었습니다. \n");
+                            continue;
+                        }
                         if (!deleteFile.exists()) {
-                            chatArea.append(checkfile + " 은 삭제되었습니다.\n");
+                            chatArea.append(checkfile + " 은 클라이언트 에서 삭제되었습니다.\n");
                             sendAll(checkfile + " 파일은 클라이언트에서 삭제되었습니다.\n");
 
 
@@ -250,7 +254,6 @@ public class MultiServer {
                                 sendAll(name + "님의 " + checkfile + " 파일이 누군가에 의해 변경되었습니다.\n");
 
 
-                                // 변경된 파일에 대한 추가 동작 수행(덮어쓰기)
 
                             } else {
                                 chatArea.append(checkfile + " 파일은 변경되지 않았습니다.\n");
@@ -323,8 +326,6 @@ public class MultiServer {
 
             File clientFile = new File(clientFilePath);
             File serverFile = new File(serverFilePath);
-
-
 
 
             if (clientFile.exists() && serverFile.exists()) {
